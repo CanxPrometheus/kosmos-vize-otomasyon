@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOSMOS VİZE RANDEVU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            font-family: 'Oswald', sans-serif;
+            margin: 30px;
+            box-sizing: border-box;
+            background-color: #f8f9fa;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .header {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            color: #333;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -10px;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 4px;
+            background-color: #333;
+        }
+        .content {
+            display: flex;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .left, .right {
+            flex: 1;
+            margin: 0 15px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .section-header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input, .form-group select {
+            position: relative;
+            margin-top: 5px;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-group input[readonly] {
+            background-color: #f8f8f8;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .buttons button:hover {
+            background-color: #555;
+        }
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .logs-table th, .logs-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        .logs-table th {
+            background-color: #f2f2f2;
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .modal-close:hover,
+        .modal-close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .fa-eye, .fa-eye-slash {
+            cursor: pointer;
+            font-size: 24px;
+            color: #333;
+        }
+        .credit-card-list {
+            margin-top: 20px;
+        }
+        .credit-card-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .credit-card-item .delete-icon {
+            cursor: pointer;
+            color: #dc3545;
+        }
+        .credit-card-item .delete-icon:hover {
+            color: #c82333;
+        }
+        .modal-content button {
+        padding: 12px 24px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #333; 
+        color: white;
+        border: none;
+        border-radius: 4px;
+        transition: background-color 0.3s, box-shadow 0.3s;
+        font-weight: 600;
+    }
+
+    .modal-content button:hover {
+        background-color: #555;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-content button:active {
+        background-color: #222; 
+    }
+    .delete-btnn {
+    position: relative;
+    background: none;
+    border: none;
+    color: red; /* İkonun rengini ayarlamak için */
+    cursor: pointer;
+    }
+
+    .delete-btnn:hover {
+        color: darkred; /* Hover efekti */
+    }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">KOSMOS VİZE RANDEVU</div>
+        <div class="content">
+            <div class="left">
+                <div class="section-header">
+                    <span>İşlem Oluşturma Alanı</span>
+                    <i class="fa fa-eye" id="toggle-info"></i>
+                </div>
+                <div id="customer-info">
+                    <div class="form-group">
+                        <label for="customer-select">Müşteri Seçin</label>
+                        <select id="customer-select" multiple>
+                        </select>
+                    </div>
+                    <div class="form-group" id="selected-customers">
+                        <label>Seçili Kişiler:</label>
+                        <input type="text" id="customer-name" disabled value="">
+                        <!-- Diğer bilgileri gösterecek input alanları buraya eklenecek -->
+                    </div>
+                    <div class="form-group" id="il">
+                        <label for="customer-select">Başvuru ili</label>
+                        <input type="text" id="basvuru-il" disabled value="">
+                    </div>
+                    <div class="form-group" id="basvuru-sekli">
+                        <label for="customer-select">Başvuru şekli</label>
+                        <input type="text" id="basvuru-sekli" disabled value="">
+                    </div>
+                    <div class="form-group" id="basvuru-tipi">
+                        <label for="customer-select">Başvuru tipi</label>
+                        <input type="text" id="basvuru-tipi" disabled value="">
+                    </div>
+                    <div class="form-group" id="aile-tc">
+                        <label for="customer-select">Aile TC</label>
+                        <input type="text" id="aile-tc" disabled value="">
+                    </div>
+                    <div class="form-group" id="basvurumerkez">
+                        <label for="customer-select">Başvuru Merkez</label>
+                        <input type="text" id="basvurumerkez" disabled value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentinfo">Ödeme Bilgileri</label>
+                        <select id="paymentinfo">
+                            <option value=""></option>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="buttons">
+                    <button id="start-system">İşlem Oluştur</button>
+                    <button style="display: none;" id="cancelQueue">Sırayı Durdur</button>
+                    <button style="display: none;" id="addQueue">Sıraya Ekle</button>
+                    <button id="show-credit-card-modal">Kart Bilgileri</button>
+
+                    <a href="coustomer.html" style="text-decoration: none;">
+                        <button id="add-customer-btn">Müşterileri Yönet</button>
+                    </a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="section-header">
+                    <span>İşlem Sırası (sıra en üsttekinde)</span>
+                </div>
+                <table class="logs-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Müşteri İsimi</th>
+                            <th>Başvuru İli</th>
+                            <th>Başvuru Tipi</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="credit-card-modal">
+        <div class="modal-content">
+            <span class="modal-close" id="close-modal">&times;</span>
+            <h2>Kredi Kartı Bilgileri</h2>
+            <form id="credit-card-form">
+                <div class="form-group">
+                    <label for="card-holdername">Kart Sahibi İsim</label>
+                    <input type="text" id="card-holdername" name="card-holdername" placeholder="Kart Sahibinin İsimini" required>
+                </div>
+                <div class="form-group">
+                    <label for="card-surname">Kart Sahibi Soyisim</label>
+                    <input type="text" id="card-surname" name="card-surname" placeholder="Kart Sahibinin Soyisini">
+                </div>
+                <div class="form-group">
+                    <label for="card-number">Kart Numarası</label>
+                    <input type="text" id="card-number" name="card-number" placeholder="Kart numarasını girin" required>
+                </div>
+                <div class="form-group input-inline">
+                    <div>
+                        <label for="card-expiry-month">Son Kullanma Ayı</label>
+                        <input type="text" id="card-expiry-month" name="card-expiry-month" placeholder="MM" required>
+                    </div>
+                    <div>
+                        <label for="card-expiry-year">Son Kullanma Yılı</label>
+                        <input type="text" id="card-expiry-year" name="card-expiry-year" placeholder="YYYY" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="card-cvc">CVC</label>
+                    <input type="text" id="card-cvc" name="card-cvc" placeholder="CVC kodu" required>
+                </div>
+                <button type="submit">Kartı Ekle</button>
+            </form>
+            <div class="credit-card-list" id="credit-card-list">
+                <div class="credit-card-item">
+                    <span>**** **** **** 1234</span>
+                    <i class="fa fa-trash delete-icon" data-card-id="1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+$(document).ready(function () {
+
+window.electron.getUsers();
+window.electron.getStartedStatus();
+window.electron.sendStartedStatus(function(response) {
+    if (response.started === null) {
+        Swal.fire({
+            icon: 'error',
+            title: 'HATA!',
+            text: 'Başlangıç durumu okunamadı.'
+        });
+    } else {
+        if(response.started) {
+            $('#customer-select').prop('disabled', true);
+            $("#start-system").hide();
+            $('#cancelQueue').show();
+            $('#addQueue').show();
+
+        }
+    }
+});
+
+window.electron.sendUserList(function(response) {
+    if (!response.status) {
+        return Swal.fire({
+            icon: 'error',
+            title: 'HATA!',
+            text: response.message
+        });
+    }
+
+    const usersData = response.users.map(user => ({
+        id: user.id,
+        name: user.name,
+        basvuru_il: user.basvuru_il,
+        basvuru_sekli: user.basvuru_sekli,
+        basvuru_tipi: user.basvuru_tipi,
+        randevu: user.randevu,
+        tckn: Array.isArray(user.tckn) ? user.tckn.flatMap(tckn => JSON.parse(tckn)) : JSON.parse(user.tckn || '[]'),
+        basvurumerkez: user.basvurumerkez
+    }));
+
+    $("#customer-select").html('<option value="bos">- Seçim Yapınız -</option>');
+    response.users.forEach(user => {
+        $("#customer-select").append(`<option value="${user.id}" data-name="${user.name}" data-city="${user.basvuru_il}" data-type="${user.basvuru_tipi}">${user.name}</option>`);
+    });
+
+    $("#customer-select").on("change", function() {
+        const selectedIds = $(this).val() || []; 
+        const validSelectedIds = selectedIds.filter(id => id !== 'bos');
+        updateSelectedUsersInfo(validSelectedIds, usersData);
+    });
+
+    $(document).on("click", "#addQueue", async function () {
+    const allCustomers = $("#customer-select option");
+    const selectedCustomerValues = $("#customer-select").val();
+
+    const selectedCustomerArray = Array.isArray(selectedCustomerValues) ? selectedCustomerValues : [selectedCustomerValues];
+    const selectedCustomerSet = new Set(selectedCustomerArray);
+    const unselectedCustomers = [];
+
+    allCustomers.each(function () {
+        const customerValue = $(this).val();
+        const customerText = $(this).text();
+        if (!selectedCustomerSet.has(customerValue)) {
+            unselectedCustomers.push({ value: customerValue, text: customerText });
+        }
+    });
+
+    const hiddenOptions = new Set(['bos']);
+
+    if (unselectedCustomers.length > 0) {
+        const { value: selectedUsers } = await Swal.fire({
+            title: 'Seçili Olmayan Kullanıcılar',
+            input: 'select',
+            inputOptions: unselectedCustomers.reduce((options, customer) => {
+                if (!hiddenOptions.has(customer.value)) {
+                    options[customer.value] = customer.text;
+                }
+                return options;
+            }, {}),
+            showCancelButton: true,
+            confirmButtonText: 'Seçimi Kaydet',
+            cancelButtonText: 'İptal',
+            didOpen: () => {
+                const input = Swal.getInput();
+                const options = input.querySelectorAll('option');
+
+                options.forEach(option => {
+                    if (hiddenOptions.has(option.value)) {
+                        option.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        if (selectedUsers) {
+            const selectedUsersArray = Array.isArray(selectedUsers) ? selectedUsers : [selectedUsers];
+            
+            const combinedValues = [...new Set([...selectedUsersArray, ...selectedCustomerArray])];
+            console.log('Birleştirilmiş Seçili IDler:', combinedValues);
+            const selectedCardValue = $("#paymentinfo").val();
+            const selectedCustomerValues = $("#customer-select").val();
+            updateSelectedUsersInfo(combinedValues, usersData);
+            const jsonString = JSON.stringify(selectedUsersOrder);
+            window.electron.addQueue(jsonString, selectedCardValue);
+
+        }
+    } else {
+        Swal.fire('Tüm kullanıcılar zaten seçilmiş!', '', 'info');
+    }
+});
+});
+
+window.electron.getAllQueue();
+
+window.electron.sendAllQueue(function(response) {
+    if (!response.status) {
+        return Swal.fire({
+            icon: 'error',
+            title: 'HATA!',
+            text: response.message
+        });
+    }
+
+    const queue = response.queue.flat(); 
+
+    $("#customer-select option").prop('selected', false);
+
+    queue.sort((a, b) => a.sira - b.sira).forEach(item => {
+        const option = $(`#customer-select option[value="${item.id}"]`);
+        if (option.length) {
+            option.prop('selected', true);
+        } else {
+            console.warn(`Option with value ${item.id} not found`);
+        }
+    });
+
+    $("#customer-select").trigger('change');
+
+    console.log("Selected options:", $("#customer-select").val());
+});
+
+let selectedUsersOrder = [];
+
+function updateSelectedUsersInfo(selectedIds, usersData) {
+    const selectedUsers = selectedIds.map(id => usersData.find(user => user.id.toString() === id));
+
+    selectedUsersOrder = selectedUsersOrder.filter(user => selectedIds.includes(user.id.toString()));
+    selectedUsers.forEach(user => {
+        if (!selectedUsersOrder.some(selectedUser => selectedUser.id === user.id)) {
+            selectedUsersOrder.push(user);
+        }
+    });
+
+    $("#logs-table-body").empty();
+
+    selectedUsersOrder.forEach((user, index) => {
+        $("#logs-table-body").append(`
+            <tr>
+                <th>${index + 1}</th>
+                <td>${user.name}</td>
+                <td>${user.basvuru_il}</td>
+                <td>${user.basvuru_tipi}</td>
+                <td>
+                    <button class="delete-btnn" data-id="${user.id}">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        `);
+    });
+
+    $("#selected-customers").empty();
+    $("#il").empty();
+    $("#basvuru-sekli").empty();
+    $("#basvuru-tipi").empty();
+    $("#aile-tc").empty();
+    $("#basvurumerkez").empty();
+
+    if (selectedUsersOrder.length > 0) {
+        $("#selected-customers").append(`<label>Seçili Kişiler:</label>`);
+        selectedUsersOrder.forEach((user, index) => {
+            $("#selected-customers").append(`
+                <input type="text" id="customer-name-${index + 1}" disabled value="${user.name}">
+            `);
+        });
+
+        $("#il").append(`<label>Başvuru ili:</label>`);
+        selectedUsersOrder.forEach((user, index) => {
+            $("#il").append(`
+                <input type="text" id="basvuru-il-${index + 1}" disabled value="${user.basvuru_il}">
+            `);
+        });
+
+        $("#basvuru-sekli").append(`<label>Başvuru şekli:</label>`);
+        selectedUsersOrder.forEach((user, index) => {
+            $("#basvuru-sekli").append(`
+                <input type="text" id="basvuru-sekli-${index + 1}" disabled value="${user.basvuru_sekli}">
+            `);
+        });
+
+        $("#basvuru-tipi").append(`<label>Başvuru tipi:</label>`);
+        selectedUsersOrder.forEach((user, index) => {
+            $("#basvuru-tipi").append(`
+                <input type="text" id="basvuru-tipi-${index + 1}" disabled value="${user.basvuru_tipi}">
+            `);
+        });
+
+        $("#aile-tc").append(`<label>Aile TC:</label>`);
+        selectedUsersOrder.forEach((user, index) => {
+            const tcknString = user.tckn.join(', '); 
+            $("#aile-tc").append(`
+                <input type="text" id="aile-tc-${index + 1}" disabled value="${tcknString}">
+            `);
+        });
+
+        $("#basvurumerkez").append(`<label>Başvuru Merkezi:</label>`);
+        selectedUsersOrder.forEach((user, index) => {
+            $("#basvurumerkez").append(`
+                <input type="text" id="basvurumerkez-${index + 1}" disabled value="${user.basvurumerkez}">
+            `);
+        });
+        
+    }
+}
+
+$("#start-system").click(function () {
+    const selectedCardValue = $("#paymentinfo").val();
+    const selectedCustomerValues = $("#customer-select").val();
+    
+    if (!selectedCardValue || selectedCustomerValues.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Uyarı',
+            text: 'Lütfen işlem yapılacak kullanıcı ve kartı seçiniz!',
+        });
+    } else {
+        Swal.fire({
+            icon: 'success',
+            title: 'Başarılı',
+            text: 'İşlem başlatıldı!',
+        });
+        
+        $('#customer-select').prop('disabled', true);
+        $("#start-system").hide();
+        $('#cancelQueue').show();
+        $('#addQueue').show();
+
+        const jsonString = JSON.stringify(selectedUsersOrder);
+        window.electron.addQueue(jsonString, selectedCardValue);
+        window.electron.updateStarted(true);
+    }
+});
+
+function loadCreditCards() {
+    window.electron.getcard();
+}
+
+loadCreditCards();
+
+$("#show-credit-card-modal").click(function () {
+    $("#credit-card-modal").show();
+});
+
+$("#close-modal").click(function () {
+    $("#credit-card-modal").hide();
+});
+
+$("#credit-card-form").submit(function (e) {
+    e.preventDefault();
+    const cardData = {
+        name: $("#card-holdername").val(),
+        surname: $("#card-surname").val(),
+        number: $("#card-number").val(),
+        expiryMonth: $("#card-expiry-month").val(),
+        expiryYear: $("#card-expiry-year").val(),
+        cvc: $("#card-cvc").val()
+    };
+
+
+    window.electron.createCard(JSON.stringify(cardData));
+});
+
+window.electron.cardCreated((response) => {
+    if (!response.status) {
+        Swal.fire({
+            icon: 'error',
+            title: 'HATA!',
+            text: response.message
+        });
+    } else {
+        Swal.fire({
+            icon: 'success',
+            title: 'Başarılı!',
+            text: response.message
+        });
+        loadCreditCards()
+    }
+
+    $("#credit-card-modal").hide();
+    $("#credit-card-form")[0].reset();
+});
+$("#paymentinfo").change(function() {
+        const selectedCardId = $(this).val();
+        console.log('Selected card ID:', selectedCardId);
+});
+window.electron.sendcardList((response) => {
+        if (!response.status) {
+            Swal.fire({
+                icon: 'error',
+                title: 'HATA!',
+                text: response.message
+            });
+            return;
+        }
+
+        $("#paymentinfo").empty();
+        $("#paymentinfo").append('<option value="">- Kart Seçiniz -</option>');
+
+        response.cards.forEach(card => {
+            $("#paymentinfo").append(`
+                <option value="${card.id}">**** **** **** ${card.number.slice(-4)}</option>
+            `);
+        });
+
+        if (Array.isArray(response.cards)) {
+            $("#credit-card-list").empty();
+            response.cards.forEach(card => {
+                $("#credit-card-list").append(`
+                    <div class="credit-card-item">
+                        <span>**** **** **** ${card.number.slice(-4)}</span>
+                        <i class="fa fa-trash delete-icon" data-card-id="${card.id}"></i>
+                    </div>
+                `);
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'HATA!',
+                text: 'Kart bilgileri alınamadı.'
+            });
+        }
+    });
+
+$("#paymentinfo").change(function() {
+    const selectedCardId = $(this).val();
+    console.log('Selected card ID:', selectedCardId);
+});
+
+window.electron.sendcardList((response) => {
+    if (!response.status) {
+        Swal.fire({
+            icon: 'error',
+            title: 'HATA!',
+            text: response.message
+        });
+        return;
+    }
+
+    $("#paymentinfo").empty();
+    $("#paymentinfo").append('<option value="">- Kart Seçiniz -</option>');
+
+    response.cards.forEach(card => {
+        $("#paymentinfo").append(`
+            <option value="${card.id}">**** **** **** ${card.number.slice(-4)}</option>
+        `);
+    });
+
+    if (Array.isArray(response.cards)) {
+        $("#credit-card-list").empty();
+        response.cards.forEach(card => {
+            $("#credit-card-list").append(`
+                <div class="credit-card-item">
+                    <span>**** **** **** ${card.number.slice(-4)}</span>
+                    <i class="fa fa-trash delete-icon" data-card-id="${card.id}"></i>
+                </div>
+            `);
+        });
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'HATA!',
+            text: 'Kart bilgileri alınamadı.'
+        });
+    }
+});
+
+$("#toggle-info").click(function () {
+    $("#customer-info").toggle();
+    $(this).toggleClass("fa-eye fa-eye-slash");
+});
+
+$("#cancelQueue").click(function () {
+    $("#start-system").show();
+    $('#cancelQueue').hide();
+    $("#addQueue").hide();
+    $('#customer-select').prop('disabled', false);
+
+    window.electron.updateStarted(false);
+    Swal.fire({
+            icon: 'success',
+            title: 'Başarılı',
+            text: 'İşlem başlatıldı!',
+    });
+    window.electron.stopqueue();
+
+});
+$(document).on('click', '.delete-icon', function() {
+        const cardId = $(this).data('card-id');
+        Swal.fire({
+            title: 'Emin misiniz?',
+            text: 'Bu müşteri verisini silmek istediğinizden emin misiniz?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Evet, sil!',
+            cancelButtonText: 'Hayır, iptal et!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.electron.deletecard(cardId);
+            }
+        });
+        console.log('Delete card with ID:', cardId);
+    });
+
+        window.electron.oncardDeleted((response) => {
+        if (response.status) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Silindi!',
+                text: response.message
+            });
+            loadCreditCards();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'HATA!',
+                text: response.message || 'Kart silinirken bir hata oluştu!'
+            });
+        }
+    });
+
+    
+$(document).on("click", ".delete-btnn", function () {
+const userId = $(this).data("id");
+window.electron.deleteque(userId);
+
+selectedUsersOrder = selectedUsersOrder.filter(user => user.id.toString() !== userId.toString());
+$("#customer-select").find(`option[value=${userId}]`).prop("selected", false);
+
+updateSelectedUsersInfo(selectedUsersOrder.map(user => user.id.toString()), selectedUsersOrder);
+});
+
+
+});
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+    "TELEGRAM": {
+        "BOT_TOKEN": "7348446078:AAFc1KweLA4G-leBD613Yc345j3xprfd4Yg",
+        "LOG_CHANNELS": {
+            "GENEL": "-1002216392298",
+            "SUCCESS": "-1002225552079"
+        },
+        "started": false
+    }
+}

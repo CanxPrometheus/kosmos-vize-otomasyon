@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Müşterileri Yönet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            font-family: 'Oswald', sans-serif;
+            margin: 30px;
+            box-sizing: border-box;
+            background-color: #f8f9fa;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .header {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            color: #333;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -10px;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 4px;
+            background-color: #333;
+        }
+        .content {
+            display: flex;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .left {
+            flex: 1;
+            margin: 0 15px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .section-header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #area-code, #phone-number {
+        padding: 8px;
+        margin: 5px;
+        box-sizing: border-box;
+        }
+
+        #area-code {
+            width: 20%;
+            margin-right: 10px;
+        }
+
+        #phone-number {
+            width: 75%;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .buttons button:hover {
+            background-color: #555;
+        }
+            .customer-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            .customer-table th, .customer-table td {
+                border: 1px solid #ccc;
+                padding: 10px;
+                text-align: left;
+            }
+            .customer-table th {
+                background-color: #f2f2f2;
+            }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .modal-close:hover,
+        .modal-close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .basvurumerkez-container{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Müşterileri Yönet</div>
+        <div class="content">
+            <div class="left">
+                <table class="customer-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>İsim Soyisim</th>
+                            <th>Başvuru İli</th>
+                            <th>Başvuru Tipi</th>
+                            <th>Başvuru Şekli</th>
+                            <th>Müşteri TCKN</th>
+                            <th>TCKN2</th>
+                            <th>TCKN3</th>
+                            <th>TCKN4</th>
+                            <th>TCKN5</th>
+                            <th>TCKN6</th>
+                            <th>İşlemler</th>
+
+
+                        </tr>
+                    </thead>
+                    <tbody id="customer-table-body">
+                        <!-- Müşteri verileri buraya eklenecek -->
+                    </tbody>
+                </table>
+                <div class="buttons">
+                    <button id="add-customer">Müşteri Ekle</button>
+                    <button id="delete-all-customers">Bütün Müşterileri Sil</button>
+                </div>
+                <div class="buttons">
+                    <a href="index2.html" style="text-decoration: none;">
+                        <button id="go-home">Ana Sayfaya Dön</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="customer-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Müşteri Ekle</h2>
+            <form id="customer-form">
+                <div class="form-group">
+                    <label for="customer-name">İsim Soyisim:</label>
+                    <input type="text" id="customer-name" name="customer-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="nationality">Başvuru İli:</label>
+                    <select id="nationality" name="nationality" required>
+                        <option value="">Seciniz</option>
+                        <option value="Adıyaman">Adıyaman</option>
+                        <option value="Afyon">Afyon</option>
+                        <option value="Agrı">Ağrı</option>
+                        <option value="Aksaray">Aksaray</option>
+                        <option value="Amasya">Amasya</option>
+                        <option value="Ankara">Ankara</option>
+                        <option value="Antalya">Antalya</option>
+                        <option value="Ardahan">Ardahan</option>
+                        <option value="Artvin">Artvin</option>
+                        <option value="Aydın">Aydın</option>
+                        <option value="Balıkesir">Balıkesir</option>
+                        <option value="Bartin">Bartin</option>
+                        <option value="Batman">Batman</option>
+                        <option value="Bayburt">Bayburt</option>
+                        <option value="Bilecik">Bilecik</option>
+                        <option value="Bingöl">Bingöl</option>
+                        <option value="Bitlis">Bitlis</option>
+                        <option value="Bolu">Bolu</option>
+                        <option value="Burdur">Burdur</option>
+                        <option value="Bursa">Bursa</option>
+                        <option value="Canakkale">Çanakkale</option>
+                        <option value="Cankiri">Çankırı</option>
+                        <option value="Corum">Çorum</option>
+                        <option value="Denizli">Denizli</option>
+                        <option value="Diğer">Diğer</option>
+                        <option value="Diyarbakir">Diyarbakır</option>
+                        <option value="Duzce">Düzce</option>
+                        <option value="Edirne">Edirne</option>
+                        <option value="Elazig">Elazığ</option>
+                        <option value="Erzincan">Erzincan</option>
+                        <option value="Erzurum">Erzurum</option>
+                        <option value="Eskisehir">Eskişehir</option>
+                        <option value="Gaziantep">Gaziantep</option>
+                        <option value="Giresun">Giresun</option>
+                        <option value="Gümüshane">Gümüşhane</option>
+                        <option value="Hakkari">Hakkari</option>
+                        <option value="Hatay">Hatay</option>
+                        <option value="Igdir">Iğdır</option>
+                        <option value="Isparta">Isparta</option>
+                        <option value="Istanbul">İstanbul</option>
+                        <option value="Izmir">İzmir</option>
+                        <option value="Kahramanmaras">Kahramanmaraş</option>
+                        <option value="Karabuk">Karabük</option>
+                        <option value="Karaman">Karaman</option>
+                        <option value="Kars">Kars</option>
+                        <option value="Kastamonu">Kastamonu</option>
+                        <option value="Kayseri">Kayseri</option>
+                        <option value="Kırklareli">Kırklareli</option>
+                        <option value="Kilis">Kilis</option>
+                        <option value="Kirikkale">Kırıkkale</option>
+                        <option value="Kirsehir">Kırşehir</option>
+                        <option value="Kocaeli">Kocaeli</option>
+                        <option value="Konya">Konya</option>
+                        <option value="Kutahya">Kütahya</option>
+                        <option value="Malatya">Malatya</option>
+                        <option value="Manisa">Manisa</option>
+                        <option value="Mardin">Mardin</option>
+                        <option value="Mersin">Mersin</option>
+                        <option value="Mugla">Muğla</option>
+                        <option value="Mus">Muş</option>
+                        <option value="Nevsehir">Nevşehir</option>
+                        <option value="Nigde">Niğde</option>
+                        <option value="Ordu">Ordu</option>
+                        <option value="Osmaniye">Osmaniye</option>
+                        <option value="Rize">Rize</option>
+                        <option value="Sakarya">Sakarya</option>
+                        <option value="Samsun">Samsun</option>
+                        <option value="Sanliurfa">Şanlıurfa</option>
+                        <option value="Siirt">Siirt</option>
+                        <option value="Sinop">Sinop</option>
+                        <option value="Sirnak">Şırnak</option>
+                        <option value="Sivas">Sivas</option>
+                        <option value="Tekirdag">Tekirdağ</option>
+                        <option value="Tokat">Tokat</option>
+                        <option value="Trabzon">Trabzon</option>
+                        <option value="Tunceli">Tunceli</option>
+                        <option value="Usak">Uşak</option>
+                        <option value="Van">Van</option>
+                        <option value="Yalova">Yalova</option>
+                        <option value="Yozgat">Yozgat</option>
+                        <option value="Zonguldak">Zonguldak</option>
+                    </select>
+                    <div id="basvurumerkez-container">
+                    <label for="basvurumerkez">Başvuru Merkezi:</label>
+                    <select id="basvurumerkez" name="basvurumerkez">
+                        <option value="">Seciniz</option>
+                        
+                    </select>
+                </div>
+                </div>
+                <div class="form-group">
+                    <label for="basvuru_tipi">Başvuru Tipi:</label>
+                    <select id="basvuru_tipi" name="basvuru_tipi" required>
+                        <option value="">Seciniz</option>
+                        <option value="Bireysel">Bireysel</option>
+                        <option value="Aile">Aile</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="applicationType">Başvuru Şekli:</label>
+                    <select id="applicationType" name="applicationType" required>
+                        <option value="">Seciniz</option>
+                        <option value="Standart">Standart</option>
+                        <option value="Vip">Vip</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: none;" id="familySizeGroup">
+                    <label for="familySize">Kişi Sayısı:</label>
+                    <select id="familySize" name="familySize">
+                        <option value="">Seciniz</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+                <div id="tcknFields">
+                    <div class="form-group tckn-group">
+                        <label for="TCKN1">TCKN 1:</label>
+                        <input type="text" id="TCKN1" name="TCKN1" required>
+                    </div>
+                </div>
+                <div class="buttons">
+                    <button type="submit">Müşteri Ekle</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+
+    <script>
+
+$(document).ready(function() {
+            const cityData = {
+                "Edirne": ["Kırklareli", "Çorlu", "Edirne"],
+                "Mugla": ["Ayvalık", "İzmir", "Kuşadası", "Bodrum", "Marmaris", "Fethiye", "Antalya"],
+                "Izmir": ["Ayvalık", "İzmir", "Kuşadası", "Bodrum", "Marmaris", "Fethiye", "Antalya"]
+            };
+
+            $('#nationality').change(function() {
+                const selectedCity = $(this).val();
+                const centers = cityData[selectedCity] || [];
+
+                $('#basvurumerkez').empty().append('<option value="">Seçiniz</option>');
+
+                if (centers.length > 0) {
+                    $('#basvurumerkez-container').show();
+                    centers.forEach(function(center) {
+                        $('#basvurumerkez').append('<option value="' + center + '">' + center + '</option>');
+                    });
+                } else {
+                    $('#basvurumerkez-container').hide();
+                }
+            });
+        });
+
+
+$(document).ready(function() {
+    window.electron.getUsers();
+
+    function updateUserTable() {
+        window.electron.getUsers();
+    }
+    $('#basvuru_tipi').change(function() {
+        var basvuru_tipi = $(this).val();
+        if (basvuru_tipi === 'Aile') {
+            $('#familySizeGroup').show();
+        } else {
+            $('#familySizeGroup').hide();
+            $('#familySize').val('');
+            $('#tcknFields').html(`
+                <div class="form-group tckn-group">
+                    <label for="TCKN1">TCKN 1:</label>
+                    <input type="text" id="TCKN1" required>
+                </div>
+            `);
+        }
+    });
+
+    $('#familySize').change(function() {
+        var familySize = $(this).val();
+        $('#tcknFields').empty();
+        for (var i = 1; i <= familySize; i++) {
+            $('#tcknFields').append(`
+                <div class="form-group tckn-group">
+                    <label for="TCKN${i}">TCKN ${i}:</label>
+                    <input type="text" id="TCKN${i}" required>
+                </div>
+            `);
+        }
+    });
+
+    $('#add-customer').click(function() {
+        $('#customer-form')[0].reset(); 
+        $('#customer-modal').show();
+    });
+
+    $('.modal-close').click(function() {
+        $('#customer-modal').hide();
+    });
+
+    $(window).click(function(event) {
+        if ($(event.target).is('#customer-modal')) {
+            $('#customer-modal').hide();
+        }
+    });
+
+    const cityData = {
+                "Edirne": ["Kırklareli", "Çorlu", "Edirne"],
+                "Mugla": ["Ayvalık", "İzmir", "Kuşadası", "Bodrum", "Marmaris", "Fethiye", "Antalya"],
+                "Izmir": ["Ayvalık", "İzmir", "Kuşadası", "Bodrum", "Marmaris", "Fethiye", "Antalya"]
+            };
+
+            $('#nationality').change(function() {
+                const selectedCity = $(this).val();
+                const centers = cityData[selectedCity] || [];
+
+                $('#basvurumerkez').empty().append('<option value="">Seçiniz</option>');
+
+                if (centers.length > 0) {
+                    $('#basvurumerkez-container').show();
+                    centers.forEach(function(center) {
+                        $('#basvurumerkez').append('<option value="' + center + '">' + center + '</option>');
+                    });
+                } else {
+                    $('#basvurumerkez-container').hide();
+                }
+            });
+
+            $('#customer-form').submit(function(event) {
+                event.preventDefault();
+
+                const name = $('#customer-name').val();
+                const basvuru_il = $('#nationality').val();
+                const basvuru_sekli = $('#applicationType').val();
+                const basvuru_tipi = $('#basvuru_tipi').val();
+                const basvurumerkez = $('#basvurumerkez').val() || 'default'; // Default value if not selected
+                let tckns = [];
+
+                $('#tcknFields input').each(function() {
+                    const tckn = $(this).val();
+                    if (tckn) {
+                        tckns.push(tckn);
+                    }
+                });
+
+                const newCustomer = {
+                    name,
+                    basvuru_il,
+                    basvuru_tipi,
+                    basvuru_sekli,
+                    tckns,
+                    basvurumerkez
+                };
+
+                console.log('Yeni Müşteri Bilgileri:', newCustomer);
+                // Verify that this function is correctly defined and functioning
+                window.electron.createUser(JSON.stringify(newCustomer));
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Başarılı!',
+                    text: 'Yeni müşteri eklendi!'
+                });
+
+                $("#customer-modal").hide();
+            });
+
+    window.electron.onUserCreated((response) => {
+        if (!response.status) {
+            return Swal.fire({
+                icon: 'error',
+                title: 'HATA!',
+                text: response.message
+            });
+        }
+        Swal.fire({
+            icon: 'success',
+            title: 'Başarılı!',
+            text: response.message
+        });
+    });
+
+    window.electron.sendUserList(function(response) {
+        if (response.status) {
+            const users = response.users;
+            let tableBody = '';
+            users.forEach(user => {
+                let tckns = user.tckn ? JSON.parse(user.tckn) : [];
+                while (tckns.length < 6) {
+                    tckns.push('- - - -');
+                }
+                let tcknCells = tckns.map(tckn => `<td>${tckn}</td>`).join('');
+
+                tableBody += `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.name}</td>
+                        <td>${user.basvuru_il}</td>
+                        <td>${user.basvuru_tipi}</td>
+                        <td>${user.basvuru_sekli}</td>
+                        ${tcknCells}
+                        <td><i class="fa fa-trash delete-icon" data-id="${user.id}" data-tckn="${user.tckn}"></i></td>
+                    </tr>
+                `;
+            });
+            $('#customer-table-body').html(tableBody);
+
+            $('.delete-icon').click(function() {
+                const tckn = $(this).data('id');
+                Swal.fire({
+                    title: 'Emin misiniz?',
+                    text: 'Bu müşteri verisini silmek istediğinizden emin misiniz?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Evet, sil!',
+                    cancelButtonText: 'Hayır, iptal et!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.electron.deleteUser(tckn);
+                    }
+                });
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'HATA!',
+                text: 'Müşteri verileri alınamadı!'
+            });
+        }
+    });
+
+    window.electron.userDeleted(function(response) {
+        if (response.status) {
+            Swal.fire('Silindi!', 'Müşteri başarıyla silindi.', 'success');
+
+            $(`.delete-icon[data-tckn="${response.tckn}"]`).closest('tr').remove();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'HATA!',
+                text: response.message
+            });
+        }
+    });
+
+    $('#delete-all-customers').on('click', function() {
+        Swal.fire({
+            title: "Emin misiniz?",
+            text: "Bu işlemi geri alamayacaksınız!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Evet, sil!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.electron.deleteAllCustomer();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Başarılı!',
+                    text: "Tüm Kullanıcılar Silindi"
+                });
+            }
+        });
+    });
+
+    window.electron.allUsersDeleted((response) => {
+        if (!response.status) {
+            return Swal.fire({
+                icon: 'error',
+                title: 'HATA!',
+                text: response.message
+            });
+        }
+        Swal.fire({
+            icon: 'success',
+            title: 'Başarılı!',
+            text: "Tüm Kullanıcılar Silindi"
+        });
+    });
+
+    updateUserTable();
+});
+
+
+    </script>
+</body>
+</html>
